@@ -29,8 +29,21 @@ parser.add_argument("--preprocessed_root", help="Root folder of the preprocessed
 
 args = parser.parse_args()
 
-fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, 
-									device='cuda:{}'.format(id)) for id in range(args.ngpu)]
+#change to CPU compatible code--line 32 in preprocess.py-----------
+# fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, 
+# 									device='cuda:{}'.format(id)) for id in range(args.ngpu)]
+
+# NEW CODE
+if args.ngpu == 0:
+    # Use CPU if ngpu is 0
+    fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
+                                       flip_input=False, device='cpu')]
+else:
+    # Use GPU(s) otherwise
+    fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
+                                       flip_input=False, device='cuda:{}'.format(id)) 
+          for id in range(args.ngpu)]
+#-------------------------------------------
 
 template = 'ffmpeg -loglevel panic -y -i {} -strict -2 {}'
 # template2 = 'ffmpeg -hide_banner -loglevel panic -threads 1 -y -i {} -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 {}'
@@ -93,8 +106,24 @@ def main(args):
 
 	filelist = glob(path.join(args.data_root, '*/*.mp4'))
 
-	jobs = [(vfile, args, i%args.ngpu) for i, vfile in enumerate(filelist)]
-	p = ThreadPoolExecutor(args.ngpu)
+#make cpu compatible-line 109 in preprocess.py-----------------------------
+	# jobs = [(vfile, args, i%args.ngpu) for i, vfile in enumerate(filelist)]
+
+	if args.ngpu == 0:
+		# If CPU only, assign everything to "worker 0"
+		jobs = [(vfile, args, 0) for i, vfile in enumerate(filelist)]
+	else:
+		# Distribute work across GPUs
+		jobs = [(vfile, args, i % args.ngpu) for i, vfile in enumerate(filelist)]
+#--------------------------------------------------------------------------------------
+#make cpu compatible-line 119 in preprocess.py-----------------------------
+	# p = ThreadPoolExecutor(args.ngpu)
+
+	# If ngpu is 0, default to 1 worker. Otherwise use the number of GPUs.
+	max_workers = args.ngpu if args.ngpu > 0 else 1
+	p = ThreadPoolExecutor(max_workers)
+#---------------------------------------------------------------
+
 	futures = [p.submit(mp_handler, j) for j in jobs]
 	_ = [r.result() for r in tqdm(as_completed(futures), total=len(futures))]
 

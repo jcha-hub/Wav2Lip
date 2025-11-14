@@ -8,6 +8,11 @@ import torch, face_detection
 from models import Wav2Lip
 import platform
 
+#add cpu to top of file
+device = 'cpu'
+print(f'device changed to, {device}')
+
+
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
@@ -161,7 +166,9 @@ def _load(checkpoint_path):
 	if device == 'cuda':
 		checkpoint = torch.load(checkpoint_path)
 	else:
-		checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+		#change to cpu
+		# checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+		checkpoint = torch.load(path, map_location=device)
 	return checkpoint
 
 def load_model(path):

@@ -16,6 +16,9 @@ from glob import glob
 import os, random, cv2, argparse
 from hparams import hparams, get_image_list
 
+# add tensorboard
+from torch.utils.tensorboard import SummaryWriter
+
 parser = argparse.ArgumentParser(description='Code to train the expert lip-sync discriminator')
 
 parser.add_argument("--data_root", help="Root folder of the preprocessed LRS2 dataset", required=True)
@@ -142,10 +145,17 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
 
     global global_step, global_epoch
     resumed_step = global_step
+
+    #add tensorboard---------
+    log_dir = os.path.join(checkpoint_dir, 'logs')
+    writer = SummaryWriter(log_dir)
+    #---------------------------
+
     
     while global_epoch < nepochs:
         running_loss = 0.
         prog_bar = tqdm(enumerate(train_data_loader))
+
         for step, (x, mel, y) in prog_bar:
             model.train()
             optimizer.zero_grad()
@@ -163,8 +173,13 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
             optimizer.step()
 
             global_step += 1
+
             cur_session_steps = global_step - resumed_step
             running_loss += loss.item()
+
+            #add code to get training loss -acg batch loss---------------------
+            writer.add_scalar('train_loss', running_loss / (step + 1), global_step)
+            #----------------------------
 
             if global_step == 1 or global_step % checkpoint_interval == 0:
                 save_checkpoint(
@@ -172,11 +187,19 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
 
             if global_step % hparams.syncnet_eval_interval == 0:
                 with torch.no_grad():
-                    eval_model(test_data_loader, global_step, device, model, checkpoint_dir)
+                    
+                    #modify code to get validation loss - avg per batch---------------
+                    # eval_model(test_data_loader, global_step, device, model, checkpoint_dir)
+                    val_loss = eval_model(test_data_loader, global_step, device, model, checkpoint_dir)
+                    writer.add_scalar('val_loss', val_loss, global_step)
 
             prog_bar.set_description('Loss: {}'.format(running_loss / (step + 1)))
 
         global_epoch += 1
+
+    #add code------------
+    writer.close()
+    #-------------------
 
 def eval_model(test_data_loader, global_step, device, model, checkpoint_dir):
     eval_steps = 1400
@@ -203,7 +226,8 @@ def eval_model(test_data_loader, global_step, device, model, checkpoint_dir):
         averaged_loss = sum(losses) / len(losses)
         print(averaged_loss)
 
-        return
+        #modify code to return averaged_loss
+        return averaged_loss
 
 def save_checkpoint(model, optimizer, step, checkpoint_dir, epoch):
 
@@ -255,11 +279,11 @@ if __name__ == "__main__":
 
     train_data_loader = data_utils.DataLoader(
         train_dataset, batch_size=hparams.syncnet_batch_size, shuffle=True,
-        num_workers=hparams.num_workers)
+        num_workers=hparams.num_workers, drop_last=True)
 
     test_data_loader = data_utils.DataLoader(
         test_dataset, batch_size=hparams.syncnet_batch_size,
-        num_workers=8)
+        num_workers=8, drop_last=True)
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -277,3 +301,5 @@ if __name__ == "__main__":
           checkpoint_dir=checkpoint_dir,
           checkpoint_interval=hparams.syncnet_checkpoint_interval,
           nepochs=hparams.nepochs)
+    
+
