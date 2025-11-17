@@ -1,0 +1,330 @@
+10/25 how to download Wav2Lip
+Step 1. Clone the repo locally in PyCharm 
+File → New Project from Version Control → Git
+- URL https://github.com/Rudrabha/Wav2Lip.git
+
+window for creating virtual env, from choose dependencies as requirements.txt, select base interpreter as 3.9 (model built in 3.6) so unsure if 
+will have problems
+
+I do not have 3.9, so need to install under C:\Users\julie\AppData\Local\WindowsApps\python3.9.exe
+Step 2: Install Python 3.8 or 3.9 (if needed)
+👉 On Windows:
+
+Go to the official site:
+https://www.python.org/downloads/release/python-390/
+Download the Windows installer (64-bit).
+
+Run it, and on the first screen:
+Check “Add Python 3.9 to PATH”
+Click Customize installation
+	On Optional Features: keep only pip, tcl/tk and IDLE, and py launcher checked.
+On Advanced Options:
+	Check “Add Python to environment variables”
+	Check “Install for all users” (optional but good if you have admin rights)
+Leave install location as default: C:\Users\julie\AppData\Local\Programs\Python\Python39\
+
+Then in PyCharm
+
+Go to:
+File → Settings → Project → Python Interpreter → Add Interpreter → Add Local Interpreter → Virtualenv Environment
+→ under Base Interpreter, click “…” and select:C:\Users\julie\AppData\Local\Programs\Python\Python39\python.exe
+
+
+Step 3: Add interpreter manually in PyCharm
+	Open PyCharm → File → Settings → Project: Wav2Lip → Python Interpreter
+	Click ⚙️ → Add Interpreter…
+	Choose “Add Local Interpreter → Virtualenv Environment”
+	Under Base Interpreter, click “…” → Browse
+	Locate your installed version:
+		Windows: usually C:\Users\<you>\AppData\Local\Programs\Python\Python39\python.exe
+		Mac/Linux: /usr/local/bin/python3.9 or /usr/bin/python3.9
+Select it → OK.
+PyCharm will now create a new virtual environment using that base interpreter.
+
+Now ready to install project requirements:
+	pip install -r requirements.txt
+	
+feature selection cols to remove-------------------------
+program - remove cols with single value > 99.9%  and NaN > 90%
+manually remove these cols:
+row_id_x
+time_since_last_sale
+pin10
+
+upload large pkl and zip files with LFS on github desktop------------------------
+close after seeing error message about files > 100 MB
+respository -> command prompt
+git lfs install   it says hook already exists
+git lfs update --force
+close and restart git desktop, then under repository -> respository settings 
+should be Git LFS option - NOT WORKING - DO BY COMMAND LINE
+
+repository -> command prompt
+git lfs track "*.zip"
+go back to git desktop, click .gitattributes in addition to large zip file
+
+#datasets----------
+found lrs2 through request
+lrs3 - https://www.kaggle.com/datasets/mingzhaozzz/lrs3-dataset
+
+
+#githubs
+https://github.com/Rudrabha/Wav2Lip
+https://github.com/Rudrabha/Wav2Lip/tree/master/evaluation
+https://github.com/YasserdahouML/VSR_test_set?tab=readme-ov-file
+https://github.com/saifhassan/Wav2Lip-HD
+https://github.com/TMElyralab/MuseTalk
+https://github.com/indianajson/wav2lip-HD
+https://github.com/HassanMuhammadSannaullah/Wav2lip-Fix-For-Inference
+
+https://colab.research.google.com/github/justinjohn0306/Wav2Lip/blob/master/Wav2Lip_simplified_v5.ipynb
+https://github.com/justinjohn0306?tab=repositories&q=lip&type=&language=&sort=
+https://github.com/justinjohn0306/Wav2Lip?tab=readme-ov-file#training-on-datasets-other-than-lrs2
+
+WildVSR - https://github.com/YasserdahouML/VSR_test_set?tab=readme-ov-file
+
+
+#set up environment in vscode-------gemini says run uv in conda env with python 3.6 - nope, uv only runs on python 3.8 or later
+#make updated version with python 3.8
+
+conda deactivate  
+conda create -n wav2lip_venv python=3.8
+conda activate wav2lip_venv
+pip install -r requirements_38.txt
+
+python --version
+
+librosa==0.8.1
+numpy==1.23.5
+opencv-contrib-python==4.8.0.76
+opencv-python==4.8.0.76
+torch==2.0.1
+torchvision==0.15.2
+tqdm==4.66.1
+numba==0.57.1
+
+https://colab.research.google.com/github/justinjohn0306/Wav2Lip/blob/master/Wav2Lip_simplified_v5.ipynb#scrollTo=Qgo-oaI3JU2u
+
+#download the pretrained model
+!wget 'https://github.com/justinjohn0306/Wav2Lip/releases/download/models/wav2lip.pth' -O 'checkpoints/wav2lip.pth'
+!wget 'https://github.com/justinjohn0306/Wav2Lip/releases/download/models/wav2lip_gan.pth' -O 'checkpoints/wav2lip_gan.pth'
+!wget 'https://github.com/justinjohn0306/Wav2Lip/releases/download/models/resnet50.pth' -O 'checkpoints/resnet50.pth'
+!wget 'https://github.com/justinjohn0306/Wav2Lip/releases/download/models/mobilenet.pth' -O 'checkpoints/mobilenet.pth'
+
+Had previous cloned original repository, to connect to my github branch
+make new repository called Wav2Lip
+git desktop -> repository settings -> erase original and put in github repository url https://github.com/jcha-hub/Wav2Lip
+push origin
+
+#start with goal of getting code running-------------
+conda activate wav2lip_venv
+
+#download weights-----------original website--https://github.com/Rudrabha/Wav2Lip?tab=readme-ov-file#getting-the-weights
+1. Wav2Lip pretrained model checkpoint (.pth file) at https://drive.google.com/drive/folders/153HLrqlBNxzZcHi17PEvP09kkAfzRshM
+   - Wav2Lip-SD-GAN.pt
+   - Wav2Lip-SD-NOGAN.pt
+2. Face detection model athttps://github.com/Rudrabha/Wav2Lip?tab=readme-ov-file#getting-the-weights
+   - s3fd.pth (for face detection) file renamed
+   
+3. Place in correct directories:
+   - checkpoints/ folder for wav2lip models
+   - face_detection/detection/sfd/s3fd.pth
+   
+#get backup weights from -----https://github.com/justinjohn0306/Wav2Lip---forked from original -> put in folder justin_weights
+Wav2Lip (Main Model): Download wav2lip.pth
+Wav2Lip GAN (Better Visual Quality): Download wav2lip_gan.pth
+Expert Discriminator (SyncNet): Download resnet50.pth
+Face Detection Model: Download mobilenet.pth
+
+apparently need to download ffmpeg before installing packages----------
+delete venv and start over (click file to delete)
+conda deactivate
+uv venv --python 3.8
+.venv\Scripts\activate
+conda install -c conda-forge ffmpeg
+
+try new requirements_38_v2
+torch==1.9.0
+torchvision==0.10.0
+torchaudio==0.9.0  
+librosa==0.8.0     
+numba==0.48.0      
+numpy==1.21.6      
+scipy==1.5.4      
+opencv-python==4.5.3.56  
+# opencv-contrib-python REMOVED 
+face-alignment==1.3.5  
+scikit-image==0.18.3   
+Pillow==8.4.0         
+tqdm==4.66.1          
+matplotlib==3.3.4
+
+# Step 1: PyTorch (install first, sets up CUDA/compute)
+uv pip install torch==1.9.0+cpu torchvision==0.10.0+cpu --index-url https://download.pytorch.org/whl/cpu
+
+#if gpu, check cuda version with
+nvidia-smi
+module avail cuda
+uv pip uninstall torch torchvision
+uv pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 --index-url https://download.pytorch.org/whl/cu111
+uv pip install torch==1.9.0+cu113 torchvision==0.10.0+cu113 --index-url https://download.pytorch.org/whl/cu113
+
+#step 2 - rest of requirements.txt
+uv pip install -r requirements_38_v2.txt
+
+#step 4  - try inference
+  
+python inference.py --checkpoint_path checkpoints/Wav2Lip-SD-GAN.pt --face sample_data/sample_video.mp4 --audio sample_data/sample_audio.mp3
+
+#get error where model expects CUDA - change inference.py code
+def _load(checkpoint_path):
+	if device == 'cuda':
+		checkpoint = torch.load(checkpoint_path)
+	else:
+		# Force map_location to cpu
+		# checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+		checkpoint = torch.load(checkpoint_path, map_location='cpu')
+	return checkpoint
+	
+#add cpu to top of file
+device = 'cpu'
+print(f'device changed to, {device}')
+	
+Too many errors - switch to desktop by first moving files except in filelists (contains data) to github repository Wav2Lip\
+in git bash , go to  ~/CSE_7643_DL/Group Project/Wav2Lip 
+echo "filelists/" >> .gitignore                 (shift insert to paste in git bash)
+open .gitignore file in vscode, type in filelists/ on first line
+
+Retry running on cpu with inference_cpu.py with these changes and test file--------------
+python test_cpu_mods.py
+
+
+import torch
+import os
+
+# Test loading your checkpoint on CPU
+checkpoint_path = 'checkpoints/wav2lip.pth'
+
+print("Testing checkpoint loading...")
+print(f"File exists: {os.path.exists(checkpoint_path)}")
+print(f"File size: {os.path.getsize(checkpoint_path) / 1024 / 1024:.1f} MB")
+
+try:
+    # Try loading WITH map_location (should work)
+    print("\n1. Loading with map_location='cpu'...")
+    checkpoint = torch.load(checkpoint_path, map_location='cpu')
+    print(f"✓ Success! Checkpoint keys: {list(checkpoint.keys())}")
+    
+    # Check what's inside
+    if 'state_dict' in checkpoint:
+        print(f"  - Has 'state_dict' key")
+        print(f"  - Number of parameters: {len(checkpoint['state_dict'])}")
+    else:
+        print(f"  - Direct state dict (no wrapper)")
+        print(f"  - Number of parameters: {len(checkpoint)}")
+        
+except Exception as e:
+    print(f"✗ Failed: {e}")
+
+# Also check PyTorch CUDA availability
+print(f"\nCUDA available: {torch.cuda.is_available()}")
+print(f"PyTorch version: {torch.__version__}")
+
+
+#for inference.py, no problems after converting to a .ph file while works for cpu and gpu
+
+#.pt file only runs on gpu, try justin wav2lip.pth or wav2lip_gan.pth, option to add --outfile output.mp4 or defaults to result/result_voice.mp4    - it works!!
+python inference.py --checkpoint_path checkpoints/wav2lip.pth --face sample_data/sample_video.mp4 --audio sample_data/sample_audio.mp3
+python inference.py --checkpoint_path checkpoints/wav2lip_gan.pth --face sample_data/sample_video.mp4 --audio sample_data/sample_audio_2.mp3 
+
+# put datasets under filelists, get a few sample folders from lrs2 under filelists/subset_data and filelists/subset_data_preprocessed
+
+#get discriminator pretrained syncnet weights from first github which has eval info, which links to second github with syncnet model
+ https://github.com/Rudrabha/Wav2Lip/tree/master/evaluation
+https://github.com/joonson/syncnet_python
+download syncnet_v2.model from https://huggingface.co/lithiumice/syncnet/tree/main
+
+#preprocess data for training-----------------use command line prompt with --ngpu 0 for cpu
+python preprocess.py --data_root data_root/main --preprocessed_root lrs2_preprocessed/         #(SAMPLE)
+python preprocess.py --data_root filelists/subset_data --preprocessed_root filelists/subset_data_preprocessed
+python preprocess.py --data_root filelists/subset_data --preprocessed_root filelists/subset_data_preprocessed --ngpu 0
+
+#change to CPU compatible code--line 32 in preprocess.py-----------
+# fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, 
+# 									device='cuda:{}'.format(id)) for id in range(args.ngpu)]
+
+# NEW CODE
+if args.ngpu == 0:
+    # Use CPU if ngpu is 0
+    fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
+                                       flip_input=False, device='cpu')]
+else:
+    # Use GPU(s) otherwise
+    fa = [face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
+                                       flip_input=False, device='cuda:{}'.format(id)) 
+          for id in range(args.ngpu)]
+#-------------------------------------------
+
+
+#make cpu compatible-line 109 in preprocess.py-----------------------------
+	# jobs = [(vfile, args, i%args.ngpu) for i, vfile in enumerate(filelist)]
+
+	if args.ngpu == 0:
+		# If CPU only, assign everything to "worker 0"
+		jobs = [(vfile, args, 0) for i, vfile in enumerate(filelist)]
+	else:
+		# Distribute work across GPUs
+		jobs = [(vfile, args, i % args.ngpu) for i, vfile in enumerate(filelist)]
+#--------------------------------------------------------------------------------------
+
+#make cpu compatible-line 119 in preprocess.py-----------------------------
+	# p = ThreadPoolExecutor(args.ngpu)
+
+	# If ngpu is 0, default to 1 worker. Otherwise use the number of GPUs.
+	max_workers = args.ngpu if args.ngpu > 0 else 1
+	p = ThreadPoolExecutor(max_workers)
+#---------------------------------------------------------------							
+
+#train the expert discriminator----------------------
+python color_syncnet_train.py --data_root lrs2_preprocessed/ --checkpoint_dir <folder_to_save_checkpoints>      ##(SAMPLE)
+python color_syncnet_train.py --data_root filelists/subset_data_preprocessed/  --checkpoint_dir checkpoints/expert_custom
+
+
+python create_filelists.py  
+Wav2Lip doesn't automatically scan your data folder.
+ It expects two text files (train.txt and val.txt) located in the filelists/ folder. These text files must contain the names of the video folders you want to use.
+
+in color_syncnet_train.py, add drop_last=True for both train_data_loader and test_data_loader
+
+#need to add way to see training/val loss plots
+#https://docs.pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html
+uv pip install tensorboard
+
+.venv\Scripts\activate
+tensorboard --logdir=runs     #STOCK EXAMPLE    (in new terminal in same folder)   ignore message about tensorflow installation not found
+
+error - downgrade setup tools
+uv pip install setuptools==59.5.0 
+pip install protobuf==3.20.3
+
+.venv\Scripts\activate
+tensorboard --logdir checkpoints/expert_custom/logs           (in new terminal in same folder)   ignore message about tensorflow installation not found
+http://localhost:6006/
+may need to refresh browser with ctrl-F5
+
+#run tensorboard on parent folder, and each run on subdirectories
+tensorboard --logdir checkpoints
+python color_syncnet_train.py ... --checkpoint_dir checkpoints/run_baseline
+python color_syncnet_train.py ... --checkpoint_dir checkpoints/run_lr_high
+# Run 1 (Baseline)
+python color_syncnet_train.py ... --checkpoint_dir checkpoints/expert_custom
+# Run 2 (New Experiment)
+python color_syncnet_train.py ... --checkpoint_dir checkpoints/expert_experiment_v2
+python color_syncnet_train.py --data_root filelists/subset_data_preprocessed/ --checkpoint_dir checkpoints/expert_custom --checkpoint_path checkpoints/expert_custom/checkpoint_step000000500.pth
+# Old Subset
+python color_syncnet_train.py --data_root filelists/subset_data_preprocessed ...
+# New Full Dataset
+python color_syncnet_train.py --data_root data/lrs2_preprocessed ...
+
+#Training the Wav2Lip models-----------------
+python wav2lip_train.py --data_root lrs2_preprocessed/ --checkpoint_dir <folder_to_save_checkpoints> --syncnet_checkpoint_path <path_to_expert_disc_checkpoint>     ##(SAMPLE)
