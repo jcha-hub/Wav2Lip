@@ -17,7 +17,7 @@ import os, random, cv2, argparse
 from hparams import hparams, get_image_list
 
 # add tensorboard
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='Code to train the expert lip-sync discriminator')
 
@@ -147,8 +147,8 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
     resumed_step = global_step
 
     #add tensorboard---------
-    log_dir = os.path.join(checkpoint_dir, 'logs')
-    writer = SummaryWriter(log_dir)
+    #log_dir = os.path.join(checkpoint_dir, 'logs')
+    #writer = SummaryWriter(log_dir)
     #---------------------------
 
     
@@ -178,7 +178,7 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
             running_loss += loss.item()
 
             #add code to get training loss -acg batch loss---------------------
-            writer.add_scalar('train_loss', running_loss / (step + 1), global_step)
+            #writer.add_scalar('train_loss', running_loss / (step + 1), global_step)
             #----------------------------
 
             if global_step == 1 or global_step % checkpoint_interval == 0:
@@ -191,14 +191,14 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
                     #modify code to get validation loss - avg per batch---------------
                     # eval_model(test_data_loader, global_step, device, model, checkpoint_dir)
                     val_loss = eval_model(test_data_loader, global_step, device, model, checkpoint_dir)
-                    writer.add_scalar('val_loss', val_loss, global_step)
+                    #writer.add_scalar('val_loss', val_loss, global_step)
 
             prog_bar.set_description('Loss: {}'.format(running_loss / (step + 1)))
 
         global_epoch += 1
 
     #add code------------
-    writer.close()
+    #writer.close()
     #-------------------
 
 def eval_model(test_data_loader, global_step, device, model, checkpoint_dir):
